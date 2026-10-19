@@ -1,0 +1,10 @@
+# Secrets and local environment files
+.env
+*.key
+*.pem
+*.p12
+*.pfx
+# Raw logs may contain personal data
+*.log
+alerts.json
+archives.json

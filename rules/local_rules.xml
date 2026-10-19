@@ -1,0 +1,28 @@
+<!-- Local Wazuh rules copied from the lab configuration.
+     
+     NOTE ON CUSTOM RULE 100100:
+     - Issue: In default Wazuh rules (0580-win-security_rules.xml), rule 60105 is level 0
+       (informational base rule) and never generates an alert on its own.
+       Because <if_matched_sid> only matches against rules that generated alerts,
+       <if_matched_sid>60105</if_matched_sid> never triggers.
+     - Fix: Point <if_matched_sid> to rule 60122 ("Logon Failure - Unknown user or bad password"),
+       which is the level 5 rule that actually alerts on Windows Event ID 4625.
+     - Status: Syntax corrected below; pending live verification in the lab. -->
+<group name="local,">
+
+  <rule id="100001" level="5">
+    <if_sid>5716</if_sid>
+    <srcip>1.1.1.1</srcip>
+    <description>sshd: authentication failed from IP 1.1.1.1.</description>
+    <group>authentication_failed,</group>
+  </rule>
+
+  <rule id="100100" level="10" frequency="3" timeframe="60">
+    <if_matched_sid>60122</if_matched_sid>
+    <field name="win.system.eventID">^4625$</field>
+    <same_field>win.eventdata.targetUserName</same_field>
+    <description>Windows: Possible brute-force attack - repeated failed logins for the same account within 60 seconds.</description>
+    <group>authentication_failed,brute_force,windows_security,</group>
+  </rule>
+
+</group>
